@@ -24,5 +24,4 @@ func main()  {
 	m2 := map[string]int{"k3": 3, "k4": 4}
 	fmt.Println("MAP - create and init new map: ", m2)
 
-
 }
