@@ -5,6 +5,8 @@ import "fmt"
 
 func main() {
 
+	// Version 1
+	fmt.Println("START VERSION 1:")
 	requests := make(chan int, 5)
 	for i := 1; i <= 5; i++ {
 		requests <- i
@@ -17,7 +19,9 @@ func main() {
 		<-limiter
 		fmt.Println("request", req, time.Now())
 	}
-
+	fmt.Println("END VERSION 1: \n")
+	// Version 2
+	fmt.Println("START VERSION 2:")
 	burstyLimiter := make(chan time.Time, 3)
 
 	for i := 0; i < 3; i++ {
@@ -39,4 +43,6 @@ func main() {
 		<-burstyLimiter
 		fmt.Println("request", req, time.Now())
 	}
+	fmt.Println("END VERSION 1: \n")
+
 }
