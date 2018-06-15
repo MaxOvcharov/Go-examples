@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 import "os"
+import "math/rand"
 
 type point struct {
 	x, y int
