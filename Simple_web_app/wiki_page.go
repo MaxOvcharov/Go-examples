@@ -5,17 +5,17 @@ import (
 	"io/ioutil"
 )
 
-type Page struct {
+type PageV1 struct {
 	Title string
 	Body []byte
 }
 
-func (p *Page) save() error {
+func (p *PageV1) save() error {
 	filename := p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
-func loadPage(title string) (*Page, error) {
+func loadPageV1(title string) (*PageV1, error) {
 	filename := title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 
@@ -23,13 +23,13 @@ func loadPage(title string) (*Page, error) {
 		return nil, err
 	}
 	
-	return &Page{Title: title, Body: body}, nil
+	return &PageV1{Title: title, Body: body}, nil
 }
 
 func main()  {
-	title := "TestWikiPage"
-	p1 := &Page{Title: title, Body: []byte("This is test page!")}
+	title := "TestWikiPageV1"
+	p1 := &PageV1{Title: title, Body: []byte("This is test Page!")}
 	p1.save()
-	p2, _ := loadPage(title)
+	p2, _ := loadPageV1(title)
 	fmt.Println(string(p2.Body))
 }
