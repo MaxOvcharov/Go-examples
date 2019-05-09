@@ -9,6 +9,8 @@ import (
 )
 
 const rootPath string = "Simple_web_app/"
+const templatePathPrefix string = "templates/"
+const publishPathPrefix string = "publish/"
 
 type Page struct {
 	Title string
@@ -16,12 +18,12 @@ type Page struct {
 }
 
 func (p *Page) save() error {
-	filename := rootPath + p.Title + ".txt"
+	filename := rootPath + publishPathPrefix + p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 func loadPage(title string) (*Page, error) {
-	filename := rootPath + title + ".txt"
+	filename := rootPath + publishPathPrefix + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -32,7 +34,7 @@ func loadPage(title string) (*Page, error) {
 }
 
 func renderTemplate(w http.ResponseWriter, p *Page, tmpl string) {
-	tmplPath := rootPath + tmpl
+	tmplPath := rootPath + templatePathPrefix + tmpl
 	t, _ := template.ParseFiles(tmplPath)
 	t.Execute(w, p)
 }
@@ -44,7 +46,7 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, _ := loadPage(title)
-	renderTemplate(w, p, "view.htlm")
+	renderTemplate(w, p, "view.html")
 
 }
 
