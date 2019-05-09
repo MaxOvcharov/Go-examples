@@ -9,6 +9,11 @@ import (
 )
 
 const rootPath string = "Simple_web_app/"
+const templatePathPrefix string = "templates/"
+const publishPathPrefix string = "publish/"
+
+const urlEditPath string = "/edit/"
+const urlViewPath string = "/view/"
 
 type Page struct {
 	Title string
@@ -16,15 +21,18 @@ type Page struct {
 }
 
 func (p *Page) save() error {
-	filename := rootPath + p.Title + ".txt"
+	filename := rootPath + publishPathPrefix + p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
-func loadPage(title string) (*Page, error) {
-	filename := rootPath + title + ".txt"
+func loadPage(w http.ResponseWriter, r *http.Request, urlPath string) (*Page, error) {
+	title := r.URL.Path[len(urlPath):]
+	filename := rootPath + publishPathPrefix + title + ".txt"
+
 	body, err := ioutil.ReadFile(filename)
 
 	if err != nil {
+		http.Redirect(w, r, urlEditPath + title, http.StatusNotFound)
 		return nil, err
 	}
 
@@ -32,7 +40,7 @@ func loadPage(title string) (*Page, error) {
 }
 
 func renderTemplate(w http.ResponseWriter, p *Page, tmpl string) {
-	tmplPath := rootPath + tmpl
+	tmplPath := rootPath + templatePathPrefix + tmpl
 	t, _ := template.ParseFiles(tmplPath)
 	t.Execute(w, p)
 }
@@ -42,17 +50,16 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/view/"):]
-	p, _ := loadPage(title)
-	renderTemplate(w, p, "view.htlm")
+	p, _ := loadPage(w, r, urlViewPath)
+	renderTemplate(w, p, "view.html")
 
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/edit/"):]
-	p, err := loadPage(title)
+	p, err := loadPage(w, r, urlEditPath)
 
 	if err != nil {
+		title := r.URL.Path[len(urlEditPath):]
 		p = &Page{Title: title}
 	}
 
@@ -61,7 +68,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", simpleHandler)
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc(urlViewPath, viewHandler)
+	http.HandleFunc(urlEditPath, editHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
