@@ -42,8 +42,17 @@ func loadPage(w http.ResponseWriter, r *http.Request, urlPath string) (*Page, er
 
 func renderTemplate(w http.ResponseWriter, p *Page, tmpl string) {
 	tmplPath := rootPath + templatePathPrefix + tmpl
-	t, _ := template.ParseFiles(tmplPath)
-	t.Execute(w, p)
+	t, err := template.ParseFiles(tmplPath)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func simpleHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +81,12 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	body := r.FormValue("body")
 
 	p := &Page{Title: title, Body: []byte(body)}
-	p.save()
+	err := p.save()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	http.Redirect(w, r, urlViewPath + title, http.StatusFound)
 }
