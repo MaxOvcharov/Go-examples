@@ -13,6 +13,7 @@ const templatePathPrefix string = "templates/"
 const publishPathPrefix string = "publish/"
 
 const urlEditPath string = "/edit/"
+const urlSavePath string = "/save/"
 const urlViewPath string = "/view/"
 
 type Page struct {
@@ -66,9 +67,20 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, p, "edit.html")
 }
 
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len(urlSavePath):]
+	body := r.FormValue("body")
+
+	p := &Page{Title: title, Body: []byte(body)}
+	p.save()
+
+	http.Redirect(w, r, urlViewPath + title, http.StatusFound)
+}
+
 func main() {
 	http.HandleFunc("/", simpleHandler)
 	http.HandleFunc(urlViewPath, viewHandler)
 	http.HandleFunc(urlEditPath, editHandler)
+	http.HandleFunc(urlSavePath, saveHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
