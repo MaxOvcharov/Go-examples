@@ -12,9 +12,17 @@ const rootPath string = "Simple_web_app/"
 const templatePathPrefix string = "templates/"
 const publishPathPrefix string = "publish/"
 
+const editTemplateName string = "edit.html"
+const viewTemplateName string = "view.html"
+
+const editTemplatePath = rootPath + templatePathPrefix + editTemplateName
+const viewTemplatePath = rootPath + templatePathPrefix + viewTemplateName
+
 const urlEditPath string = "/edit/"
 const urlSavePath string = "/save/"
 const urlViewPath string = "/view/"
+
+var templates= template.Must(template.ParseFiles(editTemplatePath, viewTemplatePath))
 
 type Page struct {
 	Title string
@@ -41,15 +49,8 @@ func loadPage(w http.ResponseWriter, r *http.Request, urlPath string) (*Page, er
 }
 
 func renderTemplate(w http.ResponseWriter, p *Page, tmpl string) {
-	tmplPath := rootPath + templatePathPrefix + tmpl
-	t, err := template.ParseFiles(tmplPath)
+	err := templates.ExecuteTemplate(w, tmpl, p)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = t.Execute(w, p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -61,7 +62,7 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	p, _ := loadPage(w, r, urlViewPath)
-	renderTemplate(w, p, "view.html")
+	renderTemplate(w, p, viewTemplateName)
 
 }
 
@@ -73,7 +74,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 		p = &Page{Title: title}
 	}
 
-	renderTemplate(w, p, "edit.html")
+	renderTemplate(w, p, editTemplateName)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
