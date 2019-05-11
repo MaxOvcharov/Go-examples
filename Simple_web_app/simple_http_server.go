@@ -22,6 +22,8 @@ const urlEditPath string = "/edit/"
 const urlSavePath string = "/save/"
 const urlViewPath string = "/view/"
 
+const serverPort = ":8080"
+
 var templates= template.Must(template.ParseFiles(editTemplatePath, viewTemplatePath))
 
 type Page struct {
@@ -97,5 +99,5 @@ func main() {
 	http.HandleFunc(urlViewPath, viewHandler)
 	http.HandleFunc(urlEditPath, editHandler)
 	http.HandleFunc(urlSavePath, saveHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(serverPort, nil))
 }
