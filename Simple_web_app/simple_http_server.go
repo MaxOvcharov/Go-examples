@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -61,34 +60,35 @@ func renderTemplate(w http.ResponseWriter, p *Page, tmpl string) {
 	}
 }
 
-func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-
-	if  m == nil {
-		http.NotFound(w, r)
-		return "", errors.New("invalid page title")
-	}
-
-	return m[2], nil // Title is the second subexpression
-}
-
 func simpleHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request) {
+func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
 
-	p, _ := loadPage(w, r, urlViewPath)
+		if  m == nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		fn(w, r, m[2])
+	}
+}
+
+func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
+	p, err := loadPage(w, r, urlViewPath)
+	if err != nil {
+		http.Redirect(w, r, urlEditPath + title, http.StatusFound)
+		return
+	}
+
 	renderTemplate(w, p, viewTemplateName)
 
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-
+func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(w, r, urlEditPath)
 
 	if err != nil {
@@ -98,16 +98,11 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, p, editTemplateName)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-
+func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 
 	p := &Page{Title: title, Body: []byte(body)}
-	err = p.save()
+	err := p.save()
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -119,8 +114,8 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", simpleHandler)
-	http.HandleFunc(urlViewPath, viewHandler)
-	http.HandleFunc(urlEditPath, editHandler)
-	http.HandleFunc(urlSavePath, saveHandler)
+	http.HandleFunc(urlViewPath, makeHandler(viewHandler))
+	http.HandleFunc(urlEditPath, makeHandler(editHandler))
+	http.HandleFunc(urlSavePath, makeHandler(saveHandler))
 	log.Fatal(http.ListenAndServe(serverPort, nil))
 }
