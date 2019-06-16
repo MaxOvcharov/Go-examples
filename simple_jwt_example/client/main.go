@@ -30,11 +30,13 @@ func GenerateJWT()(string, error){
 }
 
 func main() {
+	fmt.Println("Simple JWT client \n")
+
 	tokenString, err := GenerateJWT()
+
+	fmt.Println("JWT TOKEN: %s", tokenString)
 
 	if err != nil {
 		fmt.Println("Error generating token string")
 	}
-
-	fmt.Println(tokenString)
 }
