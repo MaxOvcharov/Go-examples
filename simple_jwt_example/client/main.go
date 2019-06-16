@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"log"
+	"net/http"
 	"time"
 )
 
@@ -11,6 +13,21 @@ import (
 
 var mySigningString = []byte("mysupersecretkey")
 
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	validToken, err := GenerateJWT()
+
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+
+	fmt.Fprintf(w, validToken)
+}
+
+func HandleRequests() {
+	http.HandleFunc("/", HomePage)
+
+	log.Fatal(http.ListenAndServe(":9001", nil))
+}
 
 func GenerateJWT()(string, error){
 
@@ -33,13 +50,7 @@ func GenerateJWT()(string, error){
 }
 
 func main() {
-	fmt.Println("Simple JWT client \n")
+	fmt.Println("Simple JWT client")
 
-	tokenString, err := GenerateJWT()
-
-	fmt.Println("JWT TOKEN: %s", tokenString)
-
-	if err != nil {
-		fmt.Println("Error generating token string")
-	}
+	HandleRequests()
 }
