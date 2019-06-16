@@ -20,7 +20,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 	}
 
-	fmt.Fprintf(w, validToken)
+	fmt.Fprintf(w, "JWT TOKEN: " + validToken)
 }
 
 func HandleRequests() {
