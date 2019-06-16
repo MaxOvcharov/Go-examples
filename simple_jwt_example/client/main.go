@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// Better put mySigningString into ENV
+//mySigningString = os.Get("JWT_TOKEN_PHRASE")
+
 var mySigningString = []byte("mysupersecretkey")
 
 
