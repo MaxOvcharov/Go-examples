@@ -1,28 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	var input_num, cnt, b int
+	var a, res int
 
-	fmt.Scan(&input_num)
-	if input_num != 0 {
-		fmt.Scan(&b)
-		cnt = 1
-		minNum := b
-
-		for i := 2; input_num >= i; i++ {
-			fmt.Scan(&b)
-			if minNum > b {
-				minNum = b
-				cnt = 1
-			} else if minNum == b {
-				cnt++
-			}
-		}
-
-		fmt.Println(cnt)
+	fmt.Scan(&res)
+	if res > 20 {
+		a = res % 10
 	} else {
-		fmt.Println(cnt)
+		a = res
 	}
+
+	var kw string
+	switch {
+	case a == 1:
+		kw = "korova"
+	case a > 1 && a < 5:
+		kw = "korovy"
+	case a == 0 || a >= 5 && a <= 20:
+		kw = "korov"
+	}
+
+	fmt.Printf("%d %s", res, kw)
 }
