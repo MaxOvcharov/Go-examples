@@ -3,21 +3,17 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println(minimumFromFour())
-}
-
-func minimumFromFour() int {
-	var a, minNum int
+	var a int
 
 	fmt.Scan(&a)
-	minNum = a
+	fmt.Println(fibonacci(a))
+}
 
-	for i := 1; i < 4; i++ {
-		fmt.Scan(&a)
-		if a < minNum {
-			minNum = a
-		}
+func fibonacci(n int) int {
+	priv, cur := 1, 1
+	for i := 1; i < n; i++ {
+		priv, cur = cur, priv + cur
 	}
 
-	return minNum
+	return priv
 }
